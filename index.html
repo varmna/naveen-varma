@@ -1123,7 +1123,7 @@ let customerFeedback = 'N/A';
 let hasNegative = false;
 let hasPositive = false;
 
-// Check if conversation has both positive and negative feedback
+
 for (let msg of conv) {
   const feedback = msg['Customer Feedback'] || msg['feedback'] || msg['Feedback'];
   if (feedback && String(feedback).trim() && String(feedback).trim().toLowerCase() !== 'n/a') {
@@ -1133,11 +1133,10 @@ for (let msg of conv) {
   }
 }
 
-// Prioritize negative feedback if both exist
 if (hasNegative && hasPositive) {
   customerFeedback = 'Negative';
 } else {
-  // Otherwise, use the first valid feedback found
+  
   for (let msg of conv) {
     const feedback = msg['Customer Feedback'] || msg['feedback'] || msg['Feedback'];
     if (feedback && String(feedback).trim() && String(feedback).trim().toLowerCase() !== 'n/a') {
@@ -1430,7 +1429,7 @@ const cid = conv[0].Id;
 const ann = tool.annotations[cid];
 if (ann && Object.keys(ann).length > 0) {
 conv.forEach((m, idx) => {
-// Use the original feedback from each message
+
 const originalFeedback = m['Customer Feedback'] || m['feedback'] || m['Feedback'] || '';
 rows.push({
 'Id': m.Id, 'llmGeneratedUserMessage': m.llmGeneratedUserMessage || '', 'botMessage': m.botMessage || '',
@@ -1519,3 +1518,4 @@ checkActiveSession();
 </body>
 
 </html>
+
