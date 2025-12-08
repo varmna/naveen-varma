@@ -179,12 +179,95 @@ padding: 20px;
 background: #f5f5f5;
 }
 .message {
-padding: 15px;
-margin: 10px 0;
-border-radius: 8px;
-max-width: 80%;
-box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  max-width: 80%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
 }
+.message {
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  max-width: 80%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+
+.message-meta {
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  border-left: 3px solid #6b7280;
+  font-size: 11px;
+  color: #111827;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  white-space: normal !important;   
+  display: block;
+  line-height: 1.25;                
+}
+
+.offline-intent-control {
+  margin-top: 8px;
+  padding: 8px;
+  background: #f9fafb;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.offline-intent-control label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.offline-intent-radios {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.offline-intent-radios label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.accurate-subintent-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.message-meta-item {
+  display: inline;
+}
+
+.message-meta-item::after {
+  content: ", ";
+}
+
+.message-meta-item:last-child::after {
+  content: "";
+}
+
+
+
 .message-header {
 font-size: 12px;
 color: var(--text-secondary);
@@ -306,11 +389,15 @@ padding: 20px;
 margin-bottom: 20px;
 }
 .form-section-title {
-font-size: 14px;
-font-weight: 600;
-color: var(--text-primary);
-margin-bottom: 10px;
+  font-size: 12px;  
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
 }
+.form-section-title::after {
+  content: ':';
+}
+
 .required-star {
 color: var(--error-color);
 }
@@ -331,8 +418,9 @@ height: 16px;
 cursor: pointer;
 }
 .checkbox-item label {
-cursor: pointer;
-font-size: 13px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;  
 }
 .bucket-details {
 margin-left: 24px;
@@ -363,8 +451,9 @@ height: 16px;
 cursor: pointer;
 }
 .radio-option label {
-cursor: pointer;
-font-size: 14px;
+  cursor: pointer;
+  font-size: 12px;  
+  font-weight: 400;  
 }
 .form-control {
 width: 100%;
@@ -372,7 +461,7 @@ padding: 8px 12px;
 border: 1px solid var(--border-color);
 border-radius: 4px;
 font-family: inherit;
-font-size: 14px;
+font-size: 12px;
 }
 .form-control:focus {
 outline: none;
@@ -590,7 +679,7 @@ margin-top: 8px;
 <h1>Conversation Annotator</h1>
 <div class="top-bar-actions">
 <div class="user-display">
- 👤<span id="user-name-display">Not logged in</span>
+ <span id="user-name-display">Not logged in</span>
 <button id="edit-username-btn" class="btn btn-sm btn-outline"> </button>
 </div>
 <div class="progress-info">
@@ -648,6 +737,7 @@ margin-top: 8px;
 <script src="xlsx.full.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+let pendingFile = null;
 const tool = {
 currentIndex: 0,
 conversations: [],
@@ -656,11 +746,10 @@ hasUnsavedChanges: false,
 fileName: '',
 userName: '',
 
-buckets: ["Bot Response","HVA","AB feature/HVA Related Query","HVA sub-intent","Personalized/Account-Specific Queries","Bot Limitations","Promo & Freebie Related Queries","Help-page/Direct Customer Service","BP for Non-Profit Organisation Related Query","Personal Prime Related Query","Customer Behavior","Other Queries","Overall Observations"],
+buckets: ["Bot Response","HVA","AB feature/HVA Related Query","Personalized/Account-Specific Queries","Bot Limitations","Promo & Freebie Related Queries","Help-page/Direct Customer Service","BP for Non-Profit Organisation Related Query","Personal Prime Related Query","Customer Behavior","Other Queries","Overall Observations"],
 hvaOptions: ["N/A","3WM (3-Way Match)","Account Authority","Add User","ATEP (Amazon Tax Exemption Program)","Business Lists","Business Prime","Business Order Information","Custom Quotes","Guided Buying","Multi HVA","PBI","Quantity Discount","Shared Settings","SSO","Subscibe & Save","Savings Agent"],
 staticComments: {
 "AB feature/HVA Related Query": ["HVA Related Query"],
-"HVA sub-intent": ["Account Authority","ATEP (Tax Exemption)","Business Lists","Business Order Information (BOI)","Business Prime","Custom Quotes","General Amazon Business","Guided Buying","PBI (Pay by Invoice)","Subscribe & Save","SSO (Single Sign-On)","3-Way Match"],
 "Personalized/Account-Specific Queries": ["Account Status","Account Specific","Order Related Issue","Pre-order Query","Personalised query","Order Tracking Issue"],
 "Bot Limitations": ["Yes","No","N/A"],
 "Promo & Freebie Related Queries": [],
@@ -671,147 +760,6 @@ staticComments: {
 "Other Queries": ["Customer annoyed by bot's pop-up","Customer query not understandable","Unrelated to Amazon","Outside Bot's knowledge base but within Amazon Business","Other query","Others - Savings agent"],
 "Overall Observations": []
 }
-};
-
-const subOptionsMap = {
-"SSO": [
-"SSO: What is it/Benefits overview",
-"SSO: Setup and configuration",
-"SSO: Login/authentication issues",
-"SSO: Add/manage users",
-"SSO: Integration problems (IdP, Account Authority)",
-"SSO: Disable or remove SSO",
-"SSO: Other issues"
-],
-"Subscibe & Save": [ 
-"Subscribe & Save: What is it/Benefits overview",
-"Subscribe & Save: Set up subscription",
-"Subscribe & Save: Modify subscription (frequency/quantity)",
-"Subscribe & Save: Cancel or skip delivery",
-"Subscribe & Save: Discounts and pricing",
-"Subscribe & Save: Payment issues (PBI integration)",
-"Subscribe & Save: Other issues"
-],
-"Subscribe & Save": [
-"Subscribe & Save: What is it/Benefits overview",
-"Subscribe & Save: Set up subscription",
-"Subscribe & Save: Modify subscription (frequency/quantity)",
-"Subscribe & Save: Cancel or skip delivery",
-"Subscribe & Save: Discounts and pricing",
-"Subscribe & Save: Payment issues (PBI integration)",
-"Subscribe & Save: Other issues"
-],
-"Account Authority": [
-"Account Authority: What is it/Benefits overview",
-"Account Authority: Setup and domain verification",
-"Account Authority: Consolidate/manage accounts",
-"Account Authority: User permissions",
-"Account Authority: Spending visibility",
-"Account Authority: Disable or remove",
-"Account Authority: Other issues"
-],
-"Business Order Information": [
-"BOI: What is it/Benefits overview",
-"BOI: Configure fields and dropdowns",
-"BOI: Cost center/project codes setup",
-"BOI: Make fields required/optional",
-"BOI: Reporting and data export",
-"BOI: Integration issues",
-"BOI: Other issues"
-],
-"Business Order Information (BOI)": [
-"BOI: What is it/Benefits overview",
-"BOI: Configure fields and dropdowns",
-"BOI: Cost center/project codes setup",
-"BOI: Make fields required/optional",
-"BOI: Reporting and data export",
-"BOI: Integration issues",
-"BOI: Other issues"
-],
-"Custom Quotes": [
-"Custom Quotes: What is it/Benefits overview",
-"Custom Quotes: Check eligibility ($10k/999 units)",
-"Custom Quotes: Request a quote",
-"Custom Quotes: Track/manage quotes",
-"Custom Quotes: Accept or negotiate pricing",
-"Custom Quotes: Seller issues",
-"Custom Quotes: Other issues"
-],
-"3WM (3-Way Match)": [
-"3-Way Match: What is it/Benefits overview",
-"3-Way Match: Setup and configuration",
-"3-Way Match: Confirm deliveries",
-"3-Way Match: Invoice reconciliation issues",
-"3-Way Match: Mobile app usage",
-"3-Way Match: Reports and audit trail",
-"3-Way Match: Other issues"
-],
-"Business Lists": [
-"Business Lists: What is it/Benefits overview",
-"Business Lists: Create and manage lists",
-"Business Lists: Share lists with team",
-"Business Lists: Add/remove items",
-"Business Lists: Bulk ordering from lists",
-"Business Lists: Integration with policies",
-"Business Lists: Other issues"
-],
-"ATEP (Tax Exemption)": [
-"ATEP: What is it/Benefits overview",
-"ATEP: Check eligibility (nonprofit/gov/edu/reseller)",
-"ATEP: Upload/manage certificates",
-"ATEP: Tax not exempted (troubleshooting)",
-"ATEP: Certificate renewal/expiration",
-"ATEP: Multi-state setup",
-"ATEP: Other issues"
-],
-"PBI (Pay by Invoice)": [
-"PBI: What is it/Benefits overview",
-"PBI: Check eligibility/credit approval",
-"PBI: Payment terms and credit limits",
-"PBI: Make a payment",
-"PBI: Overdue/billing issues",
-"PBI: Integration with other features",
-"PBI: Other issues"
-],
-"PBI": [
-"PBI: What is it/Benefits overview",
-"PBI: Check eligibility/credit approval",
-"PBI: Payment terms and credit limits",
-"PBI: Make a payment",
-"PBI: Overdue/billing issues",
-"PBI: Integration with other features",
-"PBI: Other issues"
-],
-"Guided Buying": [
-"Guided Buying: What is it/Benefits overview",
-"Guided Buying: Check eligibility (Prime requirement)",
-"Guided Buying: Create/modify policies",
-"Guided Buying: Approval workflows",
-"Guided Buying: Policy not working (troubleshooting)",
-"Guided Buying: Spending limits and restrictions",
-"Guided Buying: Other issues"
-],
-"Business Prime": [
-"Business Prime: What is it/Benefits overview",
-"Business Prime: Choose/compare plans",
-"Business Prime: Sign up or upgrade",
-"Business Prime: Cancel or downgrade",
-"Business Prime: Spend visibility/analytics",
-"Business Prime: Extended features (PBI terms, Guided Buying)",
-"Business Prime: Billing and renewal",
-"Business Prime: Other issues"
-],
-"General Amazon Business": [
-"General Amazon Business: What is it/Benefits overview",
-"General Amazon Business: Account registration/setup",
-"General Amazon Business: Check eligibility for business account",
-"General Amazon Business: User management and permissions",
-"General Amazon Business: Billing and invoicing",
-"General Amazon Business: Analytics and reporting",
-"General Amazon Business: Integration (ERP/procurement systems)",
-"General Amazon Business: Feature not working (general troubleshooting)",
-"General Amazon Business: Other account issues"
-]
 };
 
 const elements = {
@@ -851,13 +799,16 @@ document.getElementById('login-name').value = tool.userName || '';
 document.getElementById('login-name').focus();
 }
 
-function handleLogin() {
+async function handleLogin() {
 const name = document.getElementById('login-name').value.trim();
 if (name) {
 tool.userName = name;
 document.getElementById('login-modal').style.display = 'none';
 document.getElementById('user-name-display').textContent = name;
 localStorage.setItem('annotator_username', name);
+if (pendingFile) {
+await processFile(pendingFile);
+}
 return true;
 }
 showStatus(' Please enter your name', 'warning');
@@ -891,62 +842,18 @@ tool.hasUnsavedChanges = false;
 elements.unsavedIndicator.classList.remove('show');
 }
 
-window.toggleBucketDetails = function(bucket) {
-const checkbox = document.querySelector(`input[value="${bucket}"]`);
-const details = document.getElementById(`details-${bucket}`);
-if (checkbox && details) {
-details.style.display = checkbox.checked ? 'block' : 'none';
-if (!checkbox.checked) {
-details.querySelectorAll('select').forEach(s => s.value = '');
-details.querySelectorAll('textarea').forEach(t => t.value = '');
-}
-markUnsaved();
-}
-};
-
-
-window.toggleHVADetail = function(primarySelect) {
-  const detailSelect = document.getElementById('hva-detail-select');
-  if (!detailSelect) return;
-  const primaryValue = primarySelect.value || '';
-
-  let key = null;
-  Object.keys(subOptionsMap).forEach(k => {
-    if (!key) {
-      if (k.toLowerCase() === primaryValue.toLowerCase()
-          || primaryValue.toLowerCase().includes(k.toLowerCase())
-          || k.toLowerCase().includes(primaryValue.toLowerCase())) key = k;
+window.toggleAccurateSubIntent = function(msgIndex, show) {
+  const container = document.getElementById(`accurate-subintent-${msgIndex}`);
+  if (container) {
+    container.style.display = show ? 'block' : 'none';
+    if (!show) {
+      const input = container.querySelector('input');
+      if (input) input.value = '';
     }
-  });
-
-  detailSelect.innerHTML = '<option value="">Choose detail...</option>';
-
-  if (key && subOptionsMap[key] && subOptionsMap[key].length) {
-
-    subOptionsMap[key].forEach(opt => {
-      const o = document.createElement('option');
-      o.value = opt;
-      o.textContent = opt;
-      detailSelect.appendChild(o);
-    });
-
-    detailSelect.style.display = 'block';
-    detailSelect.setAttribute('aria-required', 'true');
-    detailSelect.required = true;
-    
-    detailSelect.options[0].text = '— Select detail (required) —';
-    
-    detailSelect.style.borderColor = 'var(--error-color)';
-  } else {
-
-    detailSelect.style.display = 'none';
-    detailSelect.value = '';
-    detailSelect.removeAttribute('aria-required');
-    detailSelect.required = false;
-    detailSelect.style.borderColor = ''; 
+    markUnsaved();
   }
-  markUnsaved();
 };
+
 
 function createFeedbackForm() {
 let html = `
@@ -983,25 +890,12 @@ html += `
 </div>
 <div class="bucket-details" id="details-${bucket}" style="display: none;">`;
 if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-  if (bucket === 'HVA sub-intent') {
-    
-    html += `
-    <select class="form-control form-control-compact" name="${bucket}-static" id="hva-primary-select" onchange="(function(e){markUnsaved(); toggleHVADetail(e.target);})(event)">
-      <option value="">Select a sub-intent...</option>
-      ${tool.staticComments[bucket].map(c => `<option value="${c}">${c}</option>`).join('')}
-    </select>
-    <select class="form-control form-control-compact" id="hva-detail-select" name="${bucket}-detail" style="display:none; margin-top:8px;" onchange="markUnsaved()">
-      <option value="">Choose detail...</option>
-    </select>
-    <textarea class="form-control form-control-compact" name="${bucket}-sub" id="hva-sub-text" placeholder="Please Provide Your Sub Comment" rows="2" oninput="markUnsaved()"></textarea>`;
-  } else {
-    html += `
-    <select class="form-control form-control-compact" name="${bucket}-static" onchange="markUnsaved()">
-      <option value="">Select a predefined comment...</option>
-      ${tool.staticComments[bucket].map(c => `<option value="${c}">${c}</option>`).join('')}
-    </select>
-    <textarea class="form-control form-control-compact" name="${bucket}-sub" placeholder="Please Provide Your Sub Comment" rows="2" oninput="markUnsaved()"></textarea>`;
-  }
+  html += `
+  <select class="form-control form-control-compact" name="${bucket}-static" onchange="markUnsaved()">
+    <option value="">Select a predefined comment...</option>
+    ${tool.staticComments[bucket].map(c => `<option value="${c}">${c}</option>`).join('')}
+  </select>
+  <textarea class="form-control form-control-compact" name="${bucket}-sub" placeholder="Please Provide Your Sub Comment" rows="2" oninput="markUnsaved()"></textarea>`;
 } else {
   html += `<textarea class="form-control form-control-compact" name="${bucket}" placeholder="Add comments" rows="2" oninput="markUnsaved()"></textarea>`;
 }
@@ -1151,9 +1045,76 @@ elements.annotationStatus.innerHTML = `<div class="status-indicator ${isAnn ? 's
 
 let html = '';
 conv.forEach(m => {
-if (m.llmGeneratedUserMessage) html += `<div class="message customer"><div class="message-header"> Customer</div>${m.llmGeneratedUserMessage}</div>`;
-if (m.botMessage) html += `<div class="message bot"><div class="message-header"> Bot</div>${m.botMessage}</div>`;
+  if (m.llmGeneratedUserMessage) html += `<div class="message customer"><div class="message-header"> Customer</div>${m.llmGeneratedUserMessage}</div>`;
+  
+  if (m.botMessage) {
+  const msgIndex = conv.indexOf(m);
+  html += `<div class="message bot"><div class="message-header"> Bot</div>${m.botMessage}`;
+  
+  if (m.llmMetadata || m.llmIntent || m.llmWorkflow) {
+    let metaHtml = '';
+    
+    
+    if (m.llmIntent) {
+      metaHtml += `<span class="message-meta-item"><strong>llmIntent:</strong> ${m.llmIntent}</span>`;
+    }
+
+    
+    if (m.llmWorkflow) {
+      metaHtml += `<span class="message-meta-item"><strong>llmWorkflow:</strong> ${m.llmWorkflow}</span>`;
+    }
+    
+    
+    if (m.llmMetadata) {
+      let metadata = m.llmMetadata;
+      if (typeof metadata === 'string') {
+        try { metadata = JSON.parse(metadata); } catch (e) { metadata = {}; }
+      }
+      
+      const fieldsToShow = ['offline_sub_intent'];
+      
+      if (typeof metadata === 'object' && metadata !== null) {
+        fieldsToShow.forEach(field => {
+          if (Object.prototype.hasOwnProperty.call(metadata, field)) {
+            const value = typeof metadata[field] === 'object'
+              ? JSON.stringify(metadata[field])
+              : metadata[field];
+            metaHtml += `<span class="message-meta-item"><strong>${field}:</strong> ${value}</span>`;
+          }
+        });
+      }
+    }
+    
+    if (metaHtml) {
+      html += `<div class="message-meta">${metaHtml}</div>`;
+      
+      
+      html += `
+        <div class="offline-intent-control">
+          <label>Offline Sub intent:</label>
+          <div class="offline-intent-radios">
+            <label>
+              <input type="radio" name="offline-intent-${msgIndex}" value="Yes" onchange="toggleAccurateSubIntent(${msgIndex}, false)"> Yes
+            </label>
+            <label>
+              <input type="radio" name="offline-intent-${msgIndex}" value="No" onchange="toggleAccurateSubIntent(${msgIndex}, true)"> No
+            </label>
+          </div>
+          <div id="accurate-subintent-${msgIndex}" style="display:none;">
+            <label>Accurate Sub intent (In case of inaccurate Sub Intent):</label>
+            <input type="text" class="accurate-subintent-input" 
+                   placeholder="Enter accurate sub-intent" 
+                   data-msg-index="${msgIndex}"
+                   oninput="markUnsaved()">
+          </div>
+        </div>`;
+    }
+  }
+  
+  html += `</div>`;
+}
 });
+
 elements.conversationDisplay.innerHTML = html;
 elements.conversationDisplay.scrollTop = 0;
 elements.progressText.textContent = `${tool.currentIndex + 1}/${tool.conversations.length}`;
@@ -1194,48 +1155,19 @@ function saveCurrentAnnotations() {
   let missing = false, missingBucket = '', missingDetail = false;
 
   tool.buckets.slice(2, -1).forEach((bucket, idx) => {
-    const cb = document.querySelector(`input[value="${bucket}"]`);
-    if (cb && cb.checked) {
-      if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-        
-        if (bucket === 'HVA sub-intent') {
-          const primary = document.getElementById('hva-primary-select');
-          const detail = document.getElementById('hva-detail-select');
-          const subText = document.getElementById('hva-sub-text');
-
-          
-          if (!primary || !primary.value) {
-            missing = true; missingBucket = bucket; return;
-          }
-
-         
-          const detailVisible = detail && detail.style.display !== 'none';
-
-          if (detailVisible) {
-            if (!detail.value) {
-              missing = true; missingBucket = bucket; missingDetail = true; return;
-            }
-
-            temp['HVA sub-intent'] = detail.value;
-            temp[bucket] = (subText && subText.value.trim()) ? detail.value + ' - ' + subText.value.trim() : detail.value;
-          } else {
-           
-            temp['HVA sub-intent'] = primary.value;
-            temp[bucket] = (subText && subText.value.trim()) ? primary.value + ' - ' + subText.value.trim() : primary.value;
-          }
-        } else {
-          const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
-          if (!staticSel || !staticSel.value) { missing = true; missingBucket = bucket; return; }
-          const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
-          temp[bucket] = staticSel.value + (sub && sub.value.trim() ? ' - ' + sub.value.trim() : '');
-        }
-      } else {
-        const ta = document.querySelector(`textarea[name="${bucket}"]`);
-        if (ta && ta.value.trim()) temp[bucket] = ta.value.trim();
-        
-      }
+  const cb = document.querySelector(`input[value="${bucket}"]`);
+  if (cb && cb.checked) {
+    if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+      const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
+      if (!staticSel || !staticSel.value) { missing = true; missingBucket = bucket; return; }
+      const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
+      temp[bucket] = staticSel.value + (sub && sub.value.trim() ? ' - ' + sub.value.trim() : '');
+    } else {
+      const ta = document.querySelector(`textarea[name="${bucket}"]`);
+      if (ta && ta.value.trim()) temp[bucket] = ta.value.trim();
     }
-  });
+  }
+});
 
   if (missing) {
     if (missingDetail) showStatus(` Please choose a detail for ${missingBucket}`, 'warning');
@@ -1247,6 +1179,30 @@ function saveCurrentAnnotations() {
   if (!obs || !obs.value.trim()) { showStatus(' Please provide Overall Observations', 'warning'); return; }
   temp["Overall Observations"] = obs.value.trim();
   temp["Timestamp"] = new Date().toLocaleString();
+
+  const conv = tool.conversations[tool.currentIndex];
+  const messageAnnotations = [];
+  
+  conv.forEach((msg, idx) => {
+    const offlineRadio = document.querySelector(`input[name="offline-intent-${idx}"]:checked`);
+    if (offlineRadio) {
+      const annotation = {
+        messageIndex: idx,
+        offlineSubIntent: offlineRadio.value
+      };
+      
+      if (offlineRadio.value === 'No') {
+        const accurateInput = document.querySelector(`input[data-msg-index="${idx}"]`);
+        if (accurateInput && accurateInput.value.trim()) {
+          annotation.accurateSubIntent = accurateInput.value.trim();
+        }
+      }
+      
+      messageAnnotations.push(annotation);
+    }
+  });
+  
+  temp["messageAnnotations"] = messageAnnotations;
 
   tool.annotations[convId] = temp;
   saveToLocalStorage();
@@ -1282,79 +1238,36 @@ if (saved["Overall Observations"]) document.querySelector('textarea[name="overal
 
 
 tool.buckets.slice(2, -1).forEach((bucket, idx) => {
-if (saved[bucket]) {
-const cb = document.querySelector(`input[value="${bucket}"]`);
-if (cb) { cb.checked = true; document.getElementById(`details-${bucket}`).style.display = 'block'; }
-if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
-  if (bucket === 'HVA sub-intent') {
-    const primarySel = document.getElementById('hva-primary-select');
-    const detailSel = document.getElementById('hva-detail-select');
-    const subText = document.getElementById('hva-sub-text');
-    
-    const hvSaved = saved['HVA sub intent'] || saved[bucket] || '';
-    
-    let matchedParent = null, matchedDetail = null;
-    Object.keys(subOptionsMap).forEach(parent => {
-      subOptionsMap[parent].forEach(detail => {
-        if (detail === hvSaved) { matchedParent = parent; matchedDetail = detail; }
-      });
-    });
-    if (matchedParent) {
-      
-      if (primarySel) {
-        for (let i = 0; i < primarySel.options.length; i++) {
-          const op = primarySel.options[i];
-          if (op.value && op.value.toLowerCase().includes(matchedParent.toLowerCase())) { primarySel.value = op.value; break; }
-        }
-       
-        toggleHVADetail(primarySel);
-        if (detailSel) { detailSel.value = matchedDetail; detailSel.style.display = 'block'; }
-      }
+  if (saved[bucket]) {
+    const cb = document.querySelector(`input[value="${bucket}"]`);
+    if (cb) { cb.checked = true; document.getElementById(`details-${bucket}`).style.display = 'block'; }
+    if (tool.staticComments[bucket] && tool.staticComments[bucket].length > 0) {
+      const parts = saved[bucket].split(' - ');
+      const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
+      const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
+      if (staticSel) staticSel.value = parts[0];
+      if (sub) sub.value = parts.slice(1).join(' - ');
     } else {
-    
-      if (primarySel) {
-    
-        if (hvSaved.includes(' - ')) {
-          const parts = hvSaved.split(' - ');
-          primarySel.value = parts[0] || '';
-          toggleHVADetail(primarySel);
-      
-          if (subText) subText.value = parts.slice(1).join(' - ');
-        } else {
-         
-          for (let i = 0; i < primarySel.options.length; i++) {
-            const op = primarySel.options[i];
-            if (op.value && op.value.toLowerCase() === hvSaved.toLowerCase()) { primarySel.value = op.value; toggleHVADetail(primarySel); break; }
-          }
-          
-          if (!primarySel.value) {
-            for (let i = 0; i < primarySel.options.length; i++) {
-              const op = primarySel.options[i];
-              if (op.value && op.value.toLowerCase().includes(hvSaved.toLowerCase())) { primarySel.value = op.value; toggleHVADetail(primarySel); break; }
-            }
-          }
+      const ta = document.querySelector(`textarea[name="${bucket}"]`);
+      if (ta) ta.value = saved[bucket];
+    }
+   }
+});
+
+  if (saved["messageAnnotations"]) {
+    saved["messageAnnotations"].forEach(ann => {
+      const radio = document.querySelector(`input[name="offline-intent-${ann.messageIndex}"][value="${ann.offlineSubIntent}"]`);
+      if (radio) {
+        radio.checked = true;
+        if (ann.offlineSubIntent === 'No' && ann.accurateSubIntent) {
+          toggleAccurateSubIntent(ann.messageIndex, true);
+          const input = document.querySelector(`input[data-msg-index="${ann.messageIndex}"]`);
+          if (input) input.value = ann.accurateSubIntent;
         }
       }
-      
-      if (saved[bucket] && saved[bucket].includes(' - ')) {
-        const parts = saved[bucket].split(' - ');
-        if (subText) subText.value = parts.slice(1).join(' - ');
-      }
-    }
-  } else {
-    const parts = saved[bucket].split(' - ');
-    const staticSel = document.querySelector(`select[name="${bucket}-static"]`);
-    const sub = document.querySelector(`textarea[name="${bucket}-sub"]`);
-    if (staticSel) staticSel.value = parts[0];
-    if (sub) sub.value = parts.slice(1).join(' - ');
+    });
   }
-} else {
-const ta = document.querySelector(`textarea[name="${bucket}"]`);
-if (ta) ta.value = saved[bucket];
-}
-}
-});
-}
+}  
 
 function s2ab(s) {
 const buf = new ArrayBuffer(s.length);
@@ -1363,11 +1276,14 @@ for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
 return buf;
 }
 
-elements.fileInput.addEventListener('change', async (e) => {
-const file = e.target.files[0];
+async function processFile(file) {
 if (!file) return;
 if (!file.name.match(/\.xlsx?$/i)) { showStatus(' Please select Excel file', 'error'); return; }
-if (!tool.userName) { showLoginModal(); return; }
+if (!tool.userName) { 
+pendingFile = file;
+showLoginModal(); 
+return; 
+}
 try {
 showLoading(true);
 tool.fileName = file.name.replace(/\.xlsx?$/i, '');
@@ -1377,10 +1293,16 @@ processExcelData(data);
 elements.uploadScreen.style.display = 'none';
 elements.mainInterface.style.display = 'flex';
 showStatus(' File loaded!', 'success');
+pendingFile = null;
 } catch (err) {
 console.error(err);
 showStatus(' Error loading file', 'error');
 } finally { showLoading(false); }
+}
+
+elements.fileInput.addEventListener('change', async (e) => {
+const file = e.target.files[0];
+await processFile(file);
 });
 
 elements.uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); elements.uploadBox.style.background = '#e3f2fd'; });
@@ -1421,48 +1343,63 @@ displayConversation();
 elements.jumpInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') elements.jumpBtn.click(); });
 
 elements.downloadBtn.addEventListener('click', () => {
-if (Object.keys(tool.annotations).length === 0) { showStatus(' No annotations', 'warning'); return; }
-showLoading(true);
-const rows = [];
-tool.conversations.forEach(conv => {
-const cid = conv[0].Id;
-const ann = tool.annotations[cid];
-if (ann && Object.keys(ann).length > 0) {
-conv.forEach((m, idx) => {
-
-const originalFeedback = m['Customer Feedback'] || m['feedback'] || m['Feedback'] || '';
-rows.push({
-'Id': m.Id, 'llmGeneratedUserMessage': m.llmGeneratedUserMessage || '', 'botMessage': m.botMessage || '',
-'Customer Feedback': originalFeedback, 'Bot Response': ann['Bot Response'] || '',
-'HVA': ann['HVA'] || '', 'AB feature/HVA Related Query': ann['AB feature/HVA Related Query'] || '',
-'HVA sub-intent': ann['HVA sub-intent'] || '',
-'Personalized/Account-Specific Queries': ann['Personalized/Account-Specific Queries'] || '',
-'Bot Limitations': ann['Bot Limitations'] || '',
-'Promo & Freebie Related Queries': ann['Promo & Freebie Related Queries'] || '',
-'Help-page/Direct Customer Service': ann['Help-page/Direct Customer Service'] || '',
-'BP for Non-Profit Organisation Related Query': ann['BP for Non-Profit Organisation Related Query'] || '',
-'Personal Prime Related Query': ann['Personal Prime Related Query'] || '',
-'Customer Behavior': ann['Customer Behavior'] || '', 'Other Queries': ann['Other Queries'] || '',
-'Overall Observations': ann['Overall Observations'] || '', 'Login': tool.userName, 'Timestamp': ann['Timestamp'] || ''
+  if (Object.keys(tool.annotations).length === 0) { showStatus(' No annotations', 'warning'); return; }
+  showLoading(true);
+  const rows = [];
+  tool.conversations.forEach(conv => {
+    const cid = conv[0].Id;
+    const ann = tool.annotations[cid];
+    if (ann && Object.keys(ann).length > 0) {
+      conv.forEach((m, idx) => {
+        
+        let msgAnn = null;
+        if (ann.messageAnnotations) {
+          msgAnn = ann.messageAnnotations.find(a => a.messageIndex === idx);
+        }
+        
+        const originalFeedback = m['Customer Feedback'] || m['feedback'] || m['Feedback'] || '';
+        rows.push({
+  'Id': m.Id,
+  'llmGeneratedUserMessage': m.llmGeneratedUserMessage || '',
+  'botMessage': m.botMessage || '',
+  'Customer Feedback': originalFeedback,
+  'llmMetadata': m.llmMetadata || '',
+  'llmIntent': m.llmIntent || '',
+  'llmWorkflow': m.llmWorkflow || '',
+  'Bot Response': ann['Bot Response'] || '',
+  'HVA': ann['HVA'] || '',
+  'Offline Sub intent': msgAnn ? msgAnn.offlineSubIntent : '',
+  'Accurate Sub intent (In case of inaccurate Sub Intent)': msgAnn && msgAnn.accurateSubIntent ? msgAnn.accurateSubIntent : '',
+  'AB feature/HVA Related Query': ann['AB feature/HVA Related Query'] || '',
+  'Personalized/Account-Specific Queries': ann['Personalized/Account-Specific Queries'] || '',
+  'Bot Limitations': ann['Bot Limitations'] || '',
+  'Promo & Freebie Related Queries': ann['Promo & Freebie Related Queries'] || '',
+  'Help-page/Direct Customer Service': ann['Help-page/Direct Customer Service'] || '',
+  'BP for Non-Profit Organisation Related Query': ann['BP for Non-Profit Organisation Related Query'] || '',
+  'Personal Prime Related Query': ann['Personal Prime Related Query'] || '',
+  'Customer Behavior': ann['Customer Behavior'] || '',
+  'Other Queries': ann['Other Queries'] || '',
+  'Overall Observations': ann['Overall Observations'] || '',
+  'Login': tool.userName,
+  'Timestamp': ann['Timestamp'] || ''
 });
+      });
+    }
+  });
+  if (rows.length === 0) { showLoading(false); showStatus(' No annotated data', 'warning'); return; }
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Annotations");
+  const wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'binary'});
+  const blob = new Blob([s2ab(wbout)], {type: 'application/octet-stream'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const loginName = tool.userName.replace(/[^a-zA-Z0-9]/g, '_');
+  a.download = `annotated_${loginName}_${new Date().toISOString().replace(/[:.]/g, '-')}.xlsx`;
+  a.click();
+  showLoading(false);
+  showStatus(' Downloaded!', 'success');
 });
-}
-});
-if (rows.length === 0) { showLoading(false); showStatus(' No annotated data', 'warning'); return; }
-const ws = XLSX.utils.json_to_sheet(rows);
-const wb = XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(wb, ws, "Annotations");
-const wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'binary'});
-const blob = new Blob([s2ab(wbout)], {type: 'application/octet-stream'});
-const a = document.createElement('a');
-a.href = URL.createObjectURL(blob);
-const loginName = tool.userName.replace(/[^a-zA-Z0-9]/g, '_');
-a.download = `annotated_${loginName}_${new Date().toISOString().replace(/[:.]/g, '-')}.xlsx`;
-a.click();
-showLoading(false);
-showStatus(' Downloaded!', 'success');
-});
-
 elements.downloadUnannotatedBtn.addEventListener('click', () => {
 showLoading(true);
 const rows = [];
@@ -1472,8 +1409,10 @@ if (!tool.annotations[cid] || Object.keys(tool.annotations[cid]).length === 0) {
 conv.forEach((m, i) => {
 rows.push({
 'Id': m.Id, 'llmGeneratedUserMessage': m.llmGeneratedUserMessage || '', 'botMessage': m.botMessage || '',
-'Customer Feedback': i === conv.length - 1 ? m['Customer Feedback'] || '' : ''
-});
+'Customer Feedback': m['Customer Feedback'] || m['feedback'] || m['Feedback'] || '',
+'llmMetadata': m.llmMetadata || '',
+'llmIntent': m.llmIntent || '',
+'llmWorkflow': m.llmWorkflow || ''});
 });
 }
 });
@@ -1503,7 +1442,18 @@ elements.mainInterface.style.display = 'none';
 elements.uploadScreen.style.display = 'flex';
 elements.fileInput.value = '';
 });
-
+window.toggleBucketDetails = function(bucket) {
+  const checkbox = document.querySelector(`input[value="${bucket}"]`);
+  const details = document.getElementById(`details-${bucket}`);
+  if (checkbox && details) {
+    details.style.display = checkbox.checked ? 'block' : 'none';
+    if (!checkbox.checked) {
+      details.querySelectorAll('select').forEach(s => s.value = '');
+      details.querySelectorAll('textarea').forEach(t => t.value = '');
+    }
+    markUnsaved();
+  }
+};
 document.addEventListener('keydown', (e) => {
 if (elements.mainInterface.style.display === 'none') return;
 if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); elements.saveBtn.click(); }
@@ -1518,4 +1468,3 @@ checkActiveSession();
 </body>
 
 </html>
-
